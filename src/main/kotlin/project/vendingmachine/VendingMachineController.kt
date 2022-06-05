@@ -14,18 +14,18 @@ class VendingMachineController {
 
     @PostMapping("change/")
     fun calculateChange(@RequestBody changeRequest: ChangeRequest): ChangeResponse {
+        var amount = changeRequest.amount
+        if(amount<0.1){
+            return ChangeResponse(change = amount.toString())
+        }
 
         val denominations = arrayListOf<Double>(50.0, 20.0, 10.0, 5.0, 1.0, 0.2, 0.1)
 
-        var amount = changeRequest.amount.toDouble()
         //check in input amount from list, if it exists remove it
-        if (denominations.contains(amount)) {
+        if (denominations.contains(amount) && amount != 0.1) {
             denominations.remove(amount)
         }
-//       if(amount<0.1){
-//           return ChangeResponse(change = amount.toString())
-//
-//        }
+
         //create hash map to hold both the denomination and the number of occurrences
         var count: HashMap<Double, Int> = HashMap()
 
@@ -35,7 +35,6 @@ class VendingMachineController {
             count[denomination] = num
            var d =denomination * num
             amount -= d
-
         }
         //create empty arraylist to hold the final change
         var res = arrayListOf<String>()

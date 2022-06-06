@@ -23,15 +23,11 @@ import java.net.URI
 class VendingMachineApplicationTests {
 	var testRestTemplate = TestRestTemplate()
 
-	@LocalServerPort
-	var serverPort: Int = 0
-
 	@TestConfiguration
 	internal class ControllerTestConfig {
-
 	}
 
-	private fun applicationUrl() = "http://localhost:9000/change/"
+	private fun applicationUrl() = "http://localhost:8080/change/"
 
 	@Test
 	fun testGetChangeFrom100() {
@@ -43,7 +39,7 @@ class VendingMachineApplicationTests {
 		val entity = HttpEntity(requestJson, headers)
 		val result = testRestTemplate.postForEntity(url, entity, String::class.java)
 		Assertions.assertEquals(HttpStatus.OK, result.statusCode)
-		Assertions.assertEquals("{\"change\":\"R50.0 * 2\"}", result.body)
+		Assertions.assertEquals("{\"change\":\"2 x R50\"}", result.body)
 	}
 
 	@Test
@@ -56,7 +52,7 @@ class VendingMachineApplicationTests {
 		val entity = HttpEntity(requestJson, headers)
 		val result = testRestTemplate.postForEntity(url, entity, String::class.java)
 		Assertions.assertEquals(HttpStatus.OK, result.statusCode)
-		Assertions.assertEquals("{\"change\":\"R20.0 * 2 + R10.0 * 1\"}", result.body)
+		Assertions.assertEquals("{\"change\":\"2 x R20 + 1 x R10\"}", result.body)
 	}
 
 	@Test
@@ -69,7 +65,20 @@ class VendingMachineApplicationTests {
 		val entity = HttpEntity(requestJson, headers)
 		val result = testRestTemplate.postForEntity(url, entity, String::class.java)
 		Assertions.assertEquals(HttpStatus.OK, result.statusCode)
-		Assertions.assertEquals("{\"change\":\"R20.0 * 1 + R10.0 * 1\"}", result.body)
+		Assertions.assertEquals("{\"change\":\"1 x R20 + 1 x R10\"}", result.body)
+	}
+
+	@Test
+	fun testGetChangeFrom30_50() {
+		val url = applicationUrl()
+		val requestJson = "{\"amount\":30.50}"
+		val headers = HttpHeaders()
+		headers.contentType = MediaType.APPLICATION_JSON
+
+		val entity = HttpEntity(requestJson, headers)
+		val result = testRestTemplate.postForEntity(url, entity, String::class.java)
+		Assertions.assertEquals(HttpStatus.OK, result.statusCode)
+		Assertions.assertEquals("{\"change\":\"2 x 20c + 1 x 10c + 1 x R20 + 1 x R10\"}", result.body)
 	}
 
 
